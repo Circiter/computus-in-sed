@@ -1,0 +1,46 @@
+the Eastern Orthodox Easter
+
+(Gregorian dates)
+year  western   eastern
+
+1994  april 3   may 1
+1995  april 16  april 23
+1996  april 7   april 14
+1997  march 30  april 27
+1998  april 12  april 19
+1999  april 4   april 11
+2000  april 23  april 30
+2001  april 15  april 15
+2002  march 31  may 5
+2003  april 20  april 27
+2004  april 11  april 11
+2005  march 27  may 1
+2006  april 16  april 23
+2007  april 8   april 8
+2008  march 23  april 27
+2009  april 12  april 19
+2010  april 4   april 4
+2011  april 24  april 24
+2012  april 8   april 15
+2013  march 31  may 5
+2014  april 20  april 20
+2015  april 5   april 12
+2016  march 27  may 1
+2017  april 16  april 16
+2018  april 1   april 8
+2019  april 21  april 28
+2020  april 12  april 19
+2021  april 4   may 2
+2022  april 17  april 24
+2023  april 9   april 16
+2024  march 31  may 5
+2025  april 20  april 20
+2026  april 5   april 12
+2027  march 28  may 2
+2028  april 16  april 16
+2029  april 1   april 8
+2030  april 21  april 28
+2031  april 13  april 13
+2032  march 28  may 2
+2033  april 17  april 24
+2034  april 9   april 9
