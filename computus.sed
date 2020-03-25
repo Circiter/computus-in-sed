@@ -1,7 +1,7 @@
 #!/bin/sed -Enf
 
 # Calculates the date of Easter (more exactly,
-# Eastern Orthodox Easter in the Gregorian calendar).
+# Eastern Orthodox Easter).
 
 # Usage: echo <year> | ./computus.sed
 # E.g., echo 2020 | ./computus.sed
