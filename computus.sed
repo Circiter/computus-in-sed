@@ -20,47 +20,58 @@
 # c=Year%19
 # d=(19*c+15)%30
 # e=(2*a+4*b-d+34)%7
-# Month=floor((d+e+114)/31)
-# Day=((d+e+114)%31)+14
-# MonthSpell=Month==3?"March":"April"
+# t=d+e+114+13 # FIXME.
+# Month=floor(t/31)
+# Day=(t%31)+1
 
-# Convert decimal to unary.
-:decrement
-    :digit s/0(_*)$/_\1/; tdigit
-    s/^/9876543210,/
-    :decrement_digit
-        s/(.)(.)(,.*)\1(_*)$/\1\3\2\4/
-        tdigit_processed
-        s/.,/,/
-        :digit_processed
-        /..,/ bdecrement_digit
-    s/^.*,//
-    s/_/9/g
-    s/^0(.)/\1/
-    x; s/^1*$/&1/; x
-    /^0$/! bdecrement
+# [Reverse] Polish notation script.
+s/$/ set_year get_year 4 mod set_a/
+s/$/ get_year 7 mod set_b/
+s/$/ get_year 19 mod set_c/
+s/$/ 19 get_c mul 15 plus 30 mod set_d/
+s/$/ 2 get_a mul 4 get_b mul plus 34 plus get_d minus 7 mod set_e/
 
-s/^.*$//
+# 13 is the correction for the [1900; 2099] years.
+s/$/ get_d get_e plus 114 plus 13 plus set_t/
 
-# [Reverse] polish notation script (all source numbers are in base 2).
-s/$/ get_year 100 mod set_a/
-s/$/ get_year 111 mod set_b/
-s/$/ get_year 10011 mod set_c/
-s/$/ 10011 get_c mul 1111 plus 11110 mod set_d/
-s/$/ 10 get_a mul 100 get_b mul plus 100010 plus get_d minus 111 mod set_e/
+s/$/ get_t 31 div set_month/ # Month.
+s/$/ get_t 31 mod 1 plus set_day/ # Day.
 
-# 1101 is the correction for [1900; 2099] years.
-s/$/ get_d get_e plus 1110010 plus 1101 plus set_t/
+# May day correction.
+s/$/ get_month 5 eq if get_day 1 plus set_day then/
+s/$/ get_month 4 eq if get_day 31 eq if/
+s/$/ 5 set_month 1 set_day then then/
 
-s/$/ get_t 11111 div/ # Month.
-s/$/ get_t 11111 mod 1 plus/ # Day.
-
-s/$/ \$\n@year=/
-G; s/\n//g; s/$/;/
+s/$/ get_month get_day \$@/
 
 # Simple stack-based postfix calculator.
+:replace_if s/ if / < /; treplace_if
+:replace_then s/ then / > /; treplace_then
 :next_token
     :skip_white s/^ //; tskip_white
+
+    /^eq/ {
+        :compare
+            # Decrement both numbers.
+            s/\n1(1*@)/\n\1/
+            s/\n1(1*)(\n1*@)/\n\1\2/
+            /\n1+\n1+@/ bcompare
+        s/@/\n0@/
+        /\n\n\n0@/ s/0@/1@/ # If equal.
+        s/\n1*\n1*(\n.@)/\1/ # Leave only the result.
+    }
+
+    /^</ {
+        # If the top of the stack contains zero
+        # then skip the entire [ ... ] block.
+        /\n0@/ {
+            s/^<[^>]*>//
+            s/\n0@/@/
+            bnext_token
+        }
+        s/^<([^>]*)>/\1/
+        s/\n[^\n]*@/@/
+    }
 
     /^set/ {
         # Pop and assign.
@@ -123,15 +134,22 @@ G; s/\n//g; s/$/;/
         s/\n1*(\n1*@)/\1/
     }
 
-    /^[01]/ {
+    /^[0-9]/ {
         s/@/\n@/
-        :dec
-            :r s/^([10]*)0(_*) /\1_\2 /; tr
-            s/^([10]*)1(_*) /\10\2 /
-            :t s/^([01]*)_([01_]*) /\11\2 /; tt
+        :to_unary
+            :digit s/^([^ ]*)0(_*) /\1_\2 /; tdigit
+            s/^/9876543210,/
+            :decrement
+                s/^([^ ]*)(.)(.)(,[^ ]*)\2(_*) /\1\2\4\3\5 /
+                tdigit_processed
+                s/^([^ ]*).,/\1,/
+                :digit_processed
+                /^[^ ]*..,/ bdecrement
+            s/^.*,//
+            :restore_nine s/^([^ ]*)_([^ ]*) /\19\2 /; trestore_nine
             s/^0([^ ])/\1/
             s/\n(1*)@/\n1\1@/ # Increment the top of the stack.
-            /^0 /! bdec
+            /^0 /! bto_unary
     }
 
     s/^[^ ]* // # Remove current token.
@@ -140,33 +158,20 @@ G; s/\n//g; s/$/;/
 s/^.*\$\n(.*)@.*$/\1/
 # Pattern space: <Month>\n<Day>
 
-# May day fixup.
-# TODO: Change the source rpn-script instead.
-/^11111\n/ s/\n1*$/&1/
-/^1111\n/ {
-    /\n1111111111111111111111111111111$/ {
-        s/\n1111111111111111111111111111111$/\n1/;
-        s/^1111/11111/
-    }
-}
-
 s/^111\n/March,/; s/^1111\n/April,/; s/^11111\n/May,/;
 s/,/, /
 
 # Convert the day of the month to base 10.
-# TODO: consider to spell the number.
 x; s/^.*$/0/; x
 :to_decimal
     x
     :replace s/9(_*)$/_\1/; treplace
-    s/^(_*)$/0\1/
-    s/^/0123456789@/
+    s/^(_*)$/0\1/; s/^/0123456789@/
     :increment
         s/(.)(.)(@.*)\1(_*)$/\1\3\2\4/
         tok; s/.@/@/; :ok
         /..@/ bincrement
-    s/^.*@//
-    s/_/0/g
+    s/^.*@//; s/_/0/g
     x
     s/1$//
     /1$/ bto_decimal
