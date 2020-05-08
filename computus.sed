@@ -24,7 +24,7 @@
 # Month=floor(t/31)
 # Day=(t%31)+1
 
-# [Reverse] Polish notation script.
+# Reverse Polish notation script.
 s/$/ set_year get_year 4 mod set_a/
 s/$/ get_year 7 mod set_b/
 s/$/ get_year 19 mod set_c/
