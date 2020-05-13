@@ -23,5 +23,5 @@ References:
 - http://ru.wikipedia.org/wiki/пасхалия
 - [Пасхалия в sed // блог-пост][computus-in-sed]
 
-[computus-in-sed]: http://circiter.tk/blog_posts/computus-in-sed
+[computus-in-sed]: http://circiter.tk/computus-in-sed
 [dates-easter]: http://search.cpan.org/dist/Date-Easter
